@@ -65,7 +65,7 @@ func (mc JSONMetricCollector) Collect(ch chan<- prometheus.Metric) {
 					m.Desc,
 					m.ValueType,
 					floatValue,
-					extractLabels(mc.Logger, mc.Data, m.LabelsJSONPaths)...,
+					extractLabels(mc.Logger, mc.Data, m.LabelsJSONPaths, m.AllowMissingKey)...,
 				)
 				ch <- timestampMetric(mc.Logger, m, mc.Data, metric)
 			} else {
@@ -105,7 +105,7 @@ func (mc JSONMetricCollector) Collect(ch chan<- prometheus.Metric) {
 							m.Desc,
 							m.ValueType,
 							floatValue,
-							extractLabels(mc.Logger, jdata, m.LabelsJSONPaths)...,
+							extractLabels(mc.Logger, jdata, m.LabelsJSONPaths, m.AllowMissingKey)...,
 						)
 						ch <- timestampMetric(mc.Logger, m, jdata, metric)
 					} else {
@@ -164,10 +164,10 @@ func extractValue(logger *slog.Logger, data []byte, path string, enableJSONOutpu
 }
 
 // Returns the list of labels created from the list of provided json paths
-func extractLabels(logger *slog.Logger, data []byte, paths []string) []string {
+func extractLabels(logger *slog.Logger, data []byte, paths []string, allowMissingKey bool) []string {
 	labels := make([]string, len(paths))
 	for i, path := range paths {
-		if result, _, err := extractValue(logger, data, path, false, false); err == nil {
+		if result, _, err := extractValue(logger, data, path, false, allowMissingKey); err == nil {
 			labels[i] = result
 		} else {
 			logger.Error("Failed to extract label value", "err", err, "path", path, "data", data)

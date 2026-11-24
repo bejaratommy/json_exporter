@@ -58,6 +58,14 @@ $ docker run --rm -it -p 9090:9090 -v $PWD/examples/prometheus.yml:/etc/promethe
 ```
 Then head over to http://localhost:9090/graph?g0.range_input=1h&g0.expr=example_value_active&g0.tab=1 or http://localhost:9090/targets to check the scraped metrics or the targets.
 
+## Allowing missing keys
+
+Set `allow_missing_key: true` on a metric to allow missing JSONPath keys without
+logging an error. Missing metric values are not exported. Missing label values
+are exported as empty strings; other labels and the metric value are preserved.
+This applies to both `value` and `object` metrics. Invalid JSONPath expressions
+still produce errors.
+
 ## Using custom timestamps
 
 This exporter allows you to use a field of the metric as the (unix/epoch) timestamp for the data as an int64. However, this may lead to unexpected behaviour, as the prometheus implements a [Staleness](https://prometheus.io/docs/prometheus/latest/querying/basics/#staleness) mechanism.
